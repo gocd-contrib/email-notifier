@@ -6,9 +6,15 @@ import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
 import com.thoughtworks.go.plugin.api.logging.Logger;
+import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+import com.tw.go.plugin.util.FieldValidator;
+import com.tw.go.plugin.util.JSONUtils;
+import org.apache.commons.io.IOUtils;
 
+import java.io.IOException;
 import java.util.*;
 
 import static java.util.Arrays.asList;
@@ -17,33 +23,60 @@ import static java.util.Arrays.asList;
 public class EmailNotificationPluginImpl implements GoPlugin {
     private static Logger LOGGER = Logger.getLoggerFor(EmailNotificationPluginImpl.class);
 
+    public static final String PLUGIN_ID = "email.notifier";
     public static final String EXTENSION_NAME = "notification";
     private static final List<String> goSupportedVersions = asList("1.0");
 
+    public static final String PLUGIN_SETTINGS_SMTP_HOST = "smtp_host";
+    public static final String PLUGIN_SETTINGS_SMTP_PORT = "smtp_port";
+    public static final String PLUGIN_SETTINGS_IS_TLS = "is_tls";
+    public static final String PLUGIN_SETTINGS_SENDER_EMAIL_ID = "sender_email_id";
+    public static final String PLUGIN_SETTINGS_SENDER_PASSWORD = "sender_password";
+    public static final String PLUGIN_SETTINGS_RECEIVER_EMAIL_ID = "receiver_email_id";
+
+    public static final String PLUGIN_SETTINGS_GET_CONFIGURATION = "go.plugin-settings.get-configuration";
+    public static final String PLUGIN_SETTINGS_GET_VIEW = "go.plugin-settings.get-view";
+    public static final String PLUGIN_SETTINGS_VALIDATE_CONFIGURATION = "go.plugin-settings.validate-configuration";
     public static final String REQUEST_NOTIFICATIONS_INTERESTED_IN = "notifications-interested-in";
     public static final String REQUEST_STAGE_STATUS = "stage-status";
 
+    public static final String GET_PLUGIN_SETTINGS = "go.processor.plugin-settings.get";
+
     public static final int SUCCESS_RESPONSE_CODE = 200;
+    public static final int NOT_FOUND_RESPONSE_CODE = 404;
     public static final int INTERNAL_ERROR_RESPONSE_CODE = 500;
+
+    private GoApplicationAccessor goApplicationAccessor;
 
     @Override
     public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
-        // ignore
+        this.goApplicationAccessor = goApplicationAccessor;
     }
 
     @Override
     public GoPluginApiResponse handle(GoPluginApiRequest goPluginApiRequest) {
-        if (goPluginApiRequest.requestName().equals(REQUEST_NOTIFICATIONS_INTERESTED_IN)) {
+        String requestName = goPluginApiRequest.requestName();
+        if (requestName.equals(PLUGIN_SETTINGS_GET_CONFIGURATION)) {
+            return handleGetPluginSettingsConfiguration();
+        } else if (requestName.equals(PLUGIN_SETTINGS_GET_VIEW)) {
+            try {
+                return handleGetPluginSettingsView();
+            } catch (IOException e) {
+                return renderJSON(500, String.format("Failed to find template: %s", e.getMessage()));
+            }
+        } else if (requestName.equals(PLUGIN_SETTINGS_VALIDATE_CONFIGURATION)) {
+            return handleValidatePluginSettingsConfiguration(goPluginApiRequest);
+        } else if (requestName.equals(REQUEST_NOTIFICATIONS_INTERESTED_IN)) {
             return handleNotificationsInterestedIn();
-        } else if (goPluginApiRequest.requestName().equals(REQUEST_STAGE_STATUS)) {
+        } else if (requestName.equals(REQUEST_STAGE_STATUS)) {
             return handleStageNotification(goPluginApiRequest);
         }
-        return null;
+        return renderJSON(NOT_FOUND_RESPONSE_CODE, null);
     }
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        return new GoPluginIdentifier(EXTENSION_NAME, goSupportedVersions);
+        return getGoPluginIdentifier();
     }
 
     private GoPluginApiResponse handleNotificationsInterestedIn() {
@@ -53,7 +86,7 @@ public class EmailNotificationPluginImpl implements GoPlugin {
     }
 
     private GoPluginApiResponse handleStageNotification(GoPluginApiRequest goPluginApiRequest) {
-        Map<String, Object> dataMap = getMapFor(goPluginApiRequest);
+        Map<String, Object> dataMap = (Map<String, Object>) JSONUtils.fromJSON(goPluginApiRequest.requestBody());
 
         int responseCode = SUCCESS_RESPONSE_CODE;
         Map<String, Object> response = new HashMap<String, Object>();
@@ -67,8 +100,10 @@ public class EmailNotificationPluginImpl implements GoPlugin {
 
             LOGGER.info("Sending Email for " + subject);
 
-            SMTPSettings settings = new SMTPSettings("smtp.gmail.com", 587, true, "", "");
-            new SMTPMailSender(settings).send(subject, body, "");
+            PluginSettings pluginSettings = getPluginSettings();
+
+            SMTPSettings settings = new SMTPSettings(pluginSettings.getSmtpHost(), pluginSettings.getSmtpPort(), pluginSettings.isTls(), pluginSettings.getSenderEmailId(), pluginSettings.getSenderPassword());
+            new SMTPMailSender(settings).send(subject, body, pluginSettings.getReceiverEmailId());
 
             LOGGER.info("Successfully delivered an email.");
 
@@ -89,12 +124,154 @@ public class EmailNotificationPluginImpl implements GoPlugin {
         return renderJSON(responseCode, response);
     }
 
+    private GoPluginApiResponse handleGetPluginSettingsConfiguration() {
+        Map<String, Object> response = new HashMap<String, Object>();
+        response.put(PLUGIN_SETTINGS_SMTP_HOST, createField("SMTP Host", null, true, false, "0"));
+        response.put(PLUGIN_SETTINGS_SMTP_PORT, createField("SMTP Port", null, true, false, "1"));
+        response.put(PLUGIN_SETTINGS_IS_TLS, createField("TLS", null, true, false, "2"));
+        response.put(PLUGIN_SETTINGS_SENDER_EMAIL_ID, createField("Sender Email ID", null, true, false, "3"));
+        response.put(PLUGIN_SETTINGS_SENDER_PASSWORD, createField("Sender Password", null, true, true, "4"));
+        return renderJSON(SUCCESS_RESPONSE_CODE, response);
+    }
+
+    private Map<String, Object> createField(String displayName, String defaultValue, boolean isRequired, boolean isSecure, String displayOrder) {
+        Map<String, Object> fieldProperties = new HashMap<String, Object>();
+        fieldProperties.put("display-name", displayName);
+        fieldProperties.put("default-value", defaultValue);
+        fieldProperties.put("required", isRequired);
+        fieldProperties.put("secure", isSecure);
+        fieldProperties.put("display-order", displayOrder);
+        return fieldProperties;
+    }
+
+    private GoPluginApiResponse handleGetPluginSettingsView() throws IOException {
+        Map<String, Object> response = new HashMap<String, Object>();
+        response.put("template", IOUtils.toString(getClass().getResourceAsStream("/plugin-settings.template.html"), "UTF-8"));
+        return renderJSON(SUCCESS_RESPONSE_CODE, response);
+    }
+
+    private GoPluginApiResponse handleValidatePluginSettingsConfiguration(GoPluginApiRequest goPluginApiRequest) {
+        Map<String, Object> responseMap = (Map<String, Object>) JSONUtils.fromJSON(goPluginApiRequest.requestBody());
+        final Map<String, String> configuration = keyValuePairs(responseMap, "plugin-settings");
+        List<Map<String, Object>> response = new ArrayList<Map<String, Object>>();
+
+        validate(response, new FieldValidator() {
+            @Override
+            public void validate(Map<String, Object> fieldValidation) {
+                validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_SMTP_HOST, "SMTP Host");
+            }
+        });
+
+        validate(response, new FieldValidator() {
+            @Override
+            public void validate(Map<String, Object> fieldValidation) {
+                validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_SMTP_PORT, "SMTP Port");
+            }
+        });
+
+        validate(response, new FieldValidator() {
+            @Override
+            public void validate(Map<String, Object> fieldValidation) {
+                validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_IS_TLS, "TLS");
+            }
+        });
+
+        validate(response, new FieldValidator() {
+            @Override
+            public void validate(Map<String, Object> fieldValidation) {
+                validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_SENDER_EMAIL_ID, "Sender Email ID");
+            }
+        });
+
+        validate(response, new FieldValidator() {
+            @Override
+            public void validate(Map<String, Object> fieldValidation) {
+                validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_SENDER_PASSWORD, "Sender Password");
+            }
+        });
+
+        return renderJSON(SUCCESS_RESPONSE_CODE, response);
+    }
+
+    private void validate(List<Map<String, Object>> response, FieldValidator fieldValidator) {
+        Map<String, Object> fieldValidation = new HashMap<String, Object>();
+        fieldValidator.validate(fieldValidation);
+        if (!fieldValidation.isEmpty()) {
+            response.add(fieldValidation);
+        }
+    }
+
+    private void validateRequiredField(Map<String, String> configuration, Map<String, Object> fieldMap, String key, String name) {
+        if (configuration.get(key) == null || configuration.get(key).isEmpty()) {
+            fieldMap.put("key", key);
+            fieldMap.put("message", String.format("'%s' is a required field", name));
+        }
+    }
+
+    public PluginSettings getPluginSettings() {
+        Map<String, Object> requestMap = new HashMap<String, Object>();
+        requestMap.put("plugin-id", PLUGIN_ID);
+        GoApiResponse response = goApplicationAccessor.submit(createGoApiRequest(GET_PLUGIN_SETTINGS, JSONUtils.toJSON(requestMap)));
+        if (response.responseBody() == null || response.responseBody().trim().isEmpty()) {
+            throw new RuntimeException("plugin is not configured. please provide plugin settings.");
+        }
+        Map<String, String> responseBodyMap = (Map<String, String>) JSONUtils.fromJSON(response.responseBody());
+        return new PluginSettings(responseBodyMap.get(PLUGIN_SETTINGS_SMTP_HOST), Integer.parseInt(responseBodyMap.get(PLUGIN_SETTINGS_SMTP_PORT)),
+                Boolean.parseBoolean(responseBodyMap.get(PLUGIN_SETTINGS_IS_TLS)), responseBodyMap.get(PLUGIN_SETTINGS_SENDER_EMAIL_ID),
+                responseBodyMap.get(PLUGIN_SETTINGS_SENDER_PASSWORD), responseBodyMap.get(PLUGIN_SETTINGS_RECEIVER_EMAIL_ID));
+    }
+
     private boolean isEmpty(String str) {
         return str == null || str.trim().isEmpty();
     }
 
-    private Map<String, Object> getMapFor(GoPluginApiRequest goPluginApiRequest) {
-        return (Map<String, Object>) new GsonBuilder().create().fromJson(goPluginApiRequest.requestBody(), Object.class);
+    private Map<String, String> keyValuePairs(Map<String, Object> map, String mainKey) {
+        Map<String, String> keyValuePairs = new HashMap<String, String>();
+        Map<String, Object> fieldsMap = (Map<String, Object>) map.get(mainKey);
+        for (String field : fieldsMap.keySet()) {
+            Map<String, Object> fieldProperties = (Map<String, Object>) fieldsMap.get(field);
+            String value = (String) fieldProperties.get("value");
+            keyValuePairs.put(field, value);
+        }
+        return keyValuePairs;
+    }
+
+    private GoPluginIdentifier getGoPluginIdentifier() {
+        return new GoPluginIdentifier(EXTENSION_NAME, goSupportedVersions);
+    }
+
+    private GoApiRequest createGoApiRequest(final String api, final String responseBody) {
+        return new GoApiRequest() {
+            @Override
+            public String api() {
+                return api;
+            }
+
+            @Override
+            public String apiVersion() {
+                return "1.0";
+            }
+
+            @Override
+            public GoPluginIdentifier pluginIdentifier() {
+                return getGoPluginIdentifier();
+            }
+
+            @Override
+            public Map<String, String> requestParameters() {
+                return null;
+            }
+
+            @Override
+            public Map<String, String> requestHeaders() {
+                return null;
+            }
+
+            @Override
+            public String requestBody() {
+                return responseBody;
+            }
+        };
     }
 
     private GoPluginApiResponse renderJSON(final int responseCode, Object response) {
