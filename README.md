@@ -11,7 +11,7 @@ Go CD plugin to send Email notifications.
 - You will see `Email Notification plugin` on plugin listing page
 ![Plugins listing page][1]
 
-- You will need to configure the plugin
+- You will need to configure the plugin (this feature requires GoCD version >= v15.2, use system properties to configure the plugin) 
 ![Configure plugin pop-up][2]
 
 - When the stage status changes...
