@@ -1,4 +1,7 @@
+## Introduction
+
 Go CD plugin to send Email notifications.
+This is a sample plugin.  You may extend it to your own use.  It is **not** a requirement to send email from a default installation of Go CD. 
 
 *Usage:*
 
