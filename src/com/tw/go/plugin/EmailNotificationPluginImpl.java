@@ -102,8 +102,18 @@ public class EmailNotificationPluginImpl implements GoPlugin {
 
             PluginSettings pluginSettings = getPluginSettings();
 
-            SMTPSettings settings = new SMTPSettings(pluginSettings.getSmtpHost(), pluginSettings.getSmtpPort(), pluginSettings.isTls(), pluginSettings.getSenderEmailId(), pluginSettings.getSenderPassword());
-            new SMTPMailSender(settings).send(subject, body, pluginSettings.getReceiverEmailId());
+            String receiverEmailIdString = pluginSettings.getReceiverEmailId();
+
+            String[] receiverEmailIds = new String[] { receiverEmailIdString } ;
+
+            if(receiverEmailIdString.contains(",")) {
+                receiverEmailIds = receiverEmailIdString.split(",");
+            }
+
+            for(String receiverEmailId : receiverEmailIds) {
+                SMTPSettings settings = new SMTPSettings(pluginSettings.getSmtpHost(), pluginSettings.getSmtpPort(), pluginSettings.isTls(), pluginSettings.getSenderEmailId(), pluginSettings.getSenderPassword());
+                new SMTPMailSender(settings).send(subject, body, receiverEmailId);
+            }
 
             LOGGER.info("Successfully delivered an email.");
 
