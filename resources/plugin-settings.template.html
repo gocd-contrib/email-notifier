@@ -29,3 +29,8 @@
     <input type="text" ng-model="receiver_email_id" ng-required="true"/>
     <span class="form_error" ng-show="GOINPUTNAME[receiver_email_id].$error.server">{{ GOINPUTNAME[receiver_email_id].$error.server }}</span>
 </div>
+<div class="form_item_block">
+    <label>Pipeline/Stage/Status filter:<span class="asterisk">*</span></label>
+    <input type="text" ng-model="pipeline_stage_filter" ng-required="true"/>
+    <span class="form_error" ng-show="GOINPUTNAME[pipeline_stage_filter].$error.server">{{ GOINPUTNAME[pipeline_stage_filter].$error.server }}</span>
+</div>
