@@ -80,6 +80,7 @@ public class EmailNotificationPluginImplUnitTest {
         settingsResponseMap.put("is_tls", "0");
         settingsResponseMap.put("sender_email_id", "test-smtp-sender");
         settingsResponseMap.put("sender_password", "test-smtp-password");
+        settingsResponseMap.put("smtp_username", "test-smtp-username");
         settingsResponseMap.put("receiver_email_id", "test-smtp-receiver");
     }
 
@@ -151,7 +152,7 @@ public class EmailNotificationPluginImplUnitTest {
         emailNotificationPlugin.handle(requestFromServer);
 
         verify(mockTransport).sendMessage(any(Message.class), eq( new Address[] { new InternetAddress("test-email@test.co.uk") } ));
-        verify(mockTransport, times(1)).connect(eq("test-smtp-host"), eq("test-smtp-sender"), eq("test-smtp-password"));
+        verify(mockTransport, times(1)).connect(eq("test-smtp-host"), eq("test-smtp-username"), eq("test-smtp-password"));
         verify(mockTransport, times(1)).close();
         verifyNoMoreInteractions(mockTransport);
     }
@@ -170,7 +171,7 @@ public class EmailNotificationPluginImplUnitTest {
 
         verify(mockTransport).sendMessage(any(Message.class), eq( new Address[] { new InternetAddress("test-email@test.co.uk") } ));
         verify(mockTransport).sendMessage(any(Message.class), eq( new Address[] { new InternetAddress("test-email-2@test.co.uk") } ));
-        verify(mockTransport, times(2)).connect(eq("test-smtp-host"), eq("test-smtp-sender"), eq("test-smtp-password"));
+        verify(mockTransport, times(2)).connect(eq("test-smtp-host"), eq("test-smtp-username"), eq("test-smtp-password"));
         verify(mockTransport, times(2)).close();
         verifyNoMoreInteractions(mockTransport);
     }

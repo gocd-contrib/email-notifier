@@ -7,15 +7,17 @@ public class PluginSettings {
     private int smtpPort;
     private boolean tls;
     private String senderEmailId;
+    private String smtpUsername;
     private String senderPassword;
     private String receiverEmailId;
     private List<Filter> filterList;
 
-    public PluginSettings(String smtpHost, int smtpPort, boolean tls, String senderEmailId, String senderPassword, String receiverEmailId, String filterString) {
+    public PluginSettings(String smtpHost, int smtpPort, boolean tls, String senderEmailId, String smtpUsername, String senderPassword, String receiverEmailId, String filterString) {
         this.smtpHost = smtpHost;
         this.smtpPort = smtpPort;
         this.tls = tls;
         this.senderEmailId = senderEmailId;
+        this.smtpUsername = smtpUsername;
         this.senderPassword = senderPassword;
         this.receiverEmailId = receiverEmailId;
         FilterConverter filterController = new FilterConverter();
@@ -107,5 +109,9 @@ public class PluginSettings {
         result = 31 * result + (receiverEmailId != null ? receiverEmailId.hashCode() : 0);
         result = 31 * result + (filterList != null ? filterList.hashCode() : 0);
         return result;
+    }
+
+    public String getSmtpUsername() {
+        return smtpUsername;
     }
 }

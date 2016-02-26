@@ -6,13 +6,15 @@ public class SMTPSettings {
     private boolean tls;
     private String fromEmailId;
     private String password;
+    private String smtpUsername;
 
-    public SMTPSettings(String hostName, int port, boolean tls, String fromEmailId, String password) {
+    public SMTPSettings(String hostName, int port, boolean tls, String fromEmailId, String smtpUsername, String password) {
         this.hostName = hostName;
         this.port = port;
         this.tls = tls;
-        this.fromEmailId = fromEmailId;
         this.password = password;
+        this.smtpUsername = smtpUsername;
+        this.fromEmailId = fromEmailId;
     }
 
     public String getHostName() {
@@ -35,6 +37,8 @@ public class SMTPSettings {
         return password;
     }
 
+    public String getSmtpUsername() { return smtpUsername; }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -47,6 +51,7 @@ public class SMTPSettings {
         if (fromEmailId != null ? !fromEmailId.equals(that.fromEmailId) : that.fromEmailId != null) return false;
         if (hostName != null ? !hostName.equals(that.hostName) : that.hostName != null) return false;
         if (password != null ? !password.equals(that.password) : that.password != null) return false;
+        if (smtpUsername != null ? !smtpUsername.equals(that.smtpUsername) : that.smtpUsername != null) return false;
 
         return true;
     }
@@ -58,6 +63,7 @@ public class SMTPSettings {
         result = 31 * result + (tls ? 1 : 0);
         result = 31 * result + (fromEmailId != null ? fromEmailId.hashCode() : 0);
         result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (smtpUsername != null ? smtpUsername.hashCode() : 0);
         return result;
     }
 }
