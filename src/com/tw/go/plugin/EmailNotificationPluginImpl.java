@@ -31,8 +31,10 @@ public class EmailNotificationPluginImpl implements GoPlugin {
     public static final String PLUGIN_SETTINGS_SMTP_PORT = "smtp_port";
     public static final String PLUGIN_SETTINGS_IS_TLS = "is_tls";
     public static final String PLUGIN_SETTINGS_SENDER_EMAIL_ID = "sender_email_id";
+    public static final String PLUGIN_SETTINGS_SMTP_USERNAME = "smtp_username";
     public static final String PLUGIN_SETTINGS_SENDER_PASSWORD = "sender_password";
     public static final String PLUGIN_SETTINGS_RECEIVER_EMAIL_ID = "receiver_email_id";
+    public static final String PLUGIN_SETTINGS_FILTER = "pipeline_stage_filter";
 
     public static final String PLUGIN_SETTINGS_GET_CONFIGURATION = "go.plugin-settings.get-configuration";
     public static final String PLUGIN_SETTINGS_GET_VIEW = "go.plugin-settings.get-view";
@@ -95,17 +97,51 @@ public class EmailNotificationPluginImpl implements GoPlugin {
             Map<String, Object> pipelineMap = (Map<String, Object>) dataMap.get("pipeline");
             Map<String, Object> stageMap = (Map<String, Object>) pipelineMap.get("stage");
 
-            String subject = String.format("Stage: %s/%s/%s/%s", pipelineMap.get("name"), pipelineMap.get("counter"), stageMap.get("name"), stageMap.get("counter"));
-            String body = String.format("State: %s\nResult: %s\nCreate Time: %s\nLast Transition Time: %s", stageMap.get("state"), stageMap.get("result"), stageMap.get("create-time"), stageMap.get("last-transition-time"));
 
-            LOGGER.info("Sending Email for " + subject);
+            String pipelineName = (String) pipelineMap.get("name");
+            String stageName = (String) stageMap.get("name");
+            String stageState = (String) stageMap.get("state");
+
+            String subject = String.format("%s/%s is/has %s", pipelineName, stageName, stageState);
+            String body = String.format("State: %s\nResult: %s\nCreate Time: %s\nLast Transition Time: %s", stageState, stageMap.get("result"), stageMap.get("create-time"), stageMap.get("last-transition-time"));
 
             PluginSettings pluginSettings = getPluginSettings();
 
-            SMTPSettings settings = new SMTPSettings(pluginSettings.getSmtpHost(), pluginSettings.getSmtpPort(), pluginSettings.isTls(), pluginSettings.getSenderEmailId(), pluginSettings.getSenderPassword());
-            new SMTPMailSender(settings).send(subject, body, pluginSettings.getReceiverEmailId());
 
-            LOGGER.info("Successfully delivered an email.");
+            boolean matchesFilter = false;
+
+            List<Filter> filterList = pluginSettings.getFilterList();
+
+            if(filterList.isEmpty()) {
+                matchesFilter = true;
+            } else {
+                for(Filter filter : filterList) {
+                    if(filter.matches(pipelineName, stageName, stageState)) {
+                        matchesFilter = true;
+                    }
+                }
+            }
+
+            if(matchesFilter) {
+                LOGGER.info("Sending Email for " + subject);
+
+                String receiverEmailIdString = pluginSettings.getReceiverEmailId();
+
+                String[] receiverEmailIds = new String[]{receiverEmailIdString};
+
+                if (receiverEmailIdString.contains(",")) {
+                    receiverEmailIds = receiverEmailIdString.split(",");
+                }
+
+                for (String receiverEmailId : receiverEmailIds) {
+                    SMTPSettings settings = new SMTPSettings(pluginSettings.getSmtpHost(), pluginSettings.getSmtpPort(), pluginSettings.isTls(), pluginSettings.getSenderEmailId(), pluginSettings.getSmtpUsername(), pluginSettings.getSenderPassword());
+                    new SMTPMailSender(settings).send(subject, body, receiverEmailId);
+                }
+
+                LOGGER.info("Successfully delivered an email.");
+            } else {
+                LOGGER.info("Skipped email as no filter matched this pipeline/stage/state");
+            }
 
             response.put("status", "success");
         } catch (Exception e) {
@@ -130,7 +166,9 @@ public class EmailNotificationPluginImpl implements GoPlugin {
         response.put(PLUGIN_SETTINGS_SMTP_PORT, createField("SMTP Port", null, true, false, "1"));
         response.put(PLUGIN_SETTINGS_IS_TLS, createField("TLS", null, true, false, "2"));
         response.put(PLUGIN_SETTINGS_SENDER_EMAIL_ID, createField("Sender Email ID", null, true, false, "3"));
-        response.put(PLUGIN_SETTINGS_SENDER_PASSWORD, createField("Sender Password", null, true, true, "4"));
+        response.put(PLUGIN_SETTINGS_SMTP_USERNAME, createField("SMTP Username", null, true, false, "4"));
+        response.put(PLUGIN_SETTINGS_SENDER_PASSWORD, createField("Sender Password", null, true, true, "5"));
+        response.put(PLUGIN_SETTINGS_FILTER, createField("Pipeline/Stage/Status filter", null, false, false, "6"));
         return renderJSON(SUCCESS_RESPONSE_CODE, response);
     }
 
@@ -218,7 +256,9 @@ public class EmailNotificationPluginImpl implements GoPlugin {
         Map<String, String> responseBodyMap = (Map<String, String>) JSONUtils.fromJSON(response.responseBody());
         return new PluginSettings(responseBodyMap.get(PLUGIN_SETTINGS_SMTP_HOST), Integer.parseInt(responseBodyMap.get(PLUGIN_SETTINGS_SMTP_PORT)),
                 Boolean.parseBoolean(responseBodyMap.get(PLUGIN_SETTINGS_IS_TLS)), responseBodyMap.get(PLUGIN_SETTINGS_SENDER_EMAIL_ID),
-                responseBodyMap.get(PLUGIN_SETTINGS_SENDER_PASSWORD), responseBodyMap.get(PLUGIN_SETTINGS_RECEIVER_EMAIL_ID));
+                responseBodyMap.get(PLUGIN_SETTINGS_SMTP_USERNAME),
+                responseBodyMap.get(PLUGIN_SETTINGS_SENDER_PASSWORD), responseBodyMap.get(PLUGIN_SETTINGS_RECEIVER_EMAIL_ID),
+                responseBodyMap.get(PLUGIN_SETTINGS_FILTER));
     }
 
     private boolean isEmpty(String str) {

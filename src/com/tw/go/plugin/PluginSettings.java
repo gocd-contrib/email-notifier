@@ -1,20 +1,27 @@
 package com.tw.go.plugin;
 
+import java.util.List;
+
 public class PluginSettings {
     private String smtpHost;
     private int smtpPort;
     private boolean tls;
     private String senderEmailId;
+    private String smtpUsername;
     private String senderPassword;
     private String receiverEmailId;
+    private List<Filter> filterList;
 
-    public PluginSettings(String smtpHost, int smtpPort, boolean tls, String senderEmailId, String senderPassword, String receiverEmailId) {
+    public PluginSettings(String smtpHost, int smtpPort, boolean tls, String senderEmailId, String smtpUsername, String senderPassword, String receiverEmailId, String filterString) {
         this.smtpHost = smtpHost;
         this.smtpPort = smtpPort;
         this.tls = tls;
         this.senderEmailId = senderEmailId;
+        this.smtpUsername = smtpUsername;
         this.senderPassword = senderPassword;
         this.receiverEmailId = receiverEmailId;
+        FilterConverter filterController = new FilterConverter();
+        this.filterList = filterController.convertStringToFilterList(filterString);
     }
 
     public String getSmtpHost() {
@@ -65,6 +72,10 @@ public class PluginSettings {
         this.receiverEmailId = receiverEmailId;
     }
 
+    public List<Filter> getFilterList() {
+        return filterList;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -80,7 +91,10 @@ public class PluginSettings {
             return false;
         if (senderPassword != null ? !senderPassword.equals(that.senderPassword) : that.senderPassword != null)
             return false;
-        if (smtpHost != null ? !smtpHost.equals(that.smtpHost) : that.smtpHost != null) return false;
+        if (smtpHost != null ? !smtpHost.equals(that.smtpHost) : that.smtpHost != null)
+            return false;
+        if(filterList != null ? !filterList.equals(that.filterList) : that.filterList != null)
+            return false;
 
         return true;
     }
@@ -93,6 +107,11 @@ public class PluginSettings {
         result = 31 * result + (senderEmailId != null ? senderEmailId.hashCode() : 0);
         result = 31 * result + (senderPassword != null ? senderPassword.hashCode() : 0);
         result = 31 * result + (receiverEmailId != null ? receiverEmailId.hashCode() : 0);
+        result = 31 * result + (filterList != null ? filterList.hashCode() : 0);
         return result;
+    }
+
+    public String getSmtpUsername() {
+        return smtpUsername;
     }
 }

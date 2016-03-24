@@ -7,7 +7,7 @@ public class SMTPMailSenderTest {
     public void shouldSendEmail() {
         String emailId = "";
         String password = "";
-        SMTPSettings settings = new SMTPSettings("smtp.gmail.com", 587, true, emailId, password);
+        SMTPSettings settings = new SMTPSettings("smtp.gmail.com", 587, true, emailId, emailId, password);
         new SMTPMailSender(settings).send("subject", "body", emailId);
     }
 }
