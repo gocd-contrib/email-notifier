@@ -2,6 +2,9 @@ package com.tw.go.plugin;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
 
 public class Filter {
 
@@ -16,18 +19,52 @@ public class Filter {
     }
 
     public boolean matches(String pipeline, String stage, BuildState status) {
-        if(this.pipeline != null) {
+        boolean pipelineIsRegex;
+        boolean stageIsRegex;
 
-            if(this.pipeline.startsWith("*") && this.pipeline.endsWith("*")) {
-                if(pipeline == null || !pipeline.contains(this.pipeline.replaceAll("\\*", ""))) {
-                    return false;
-                }
-            } else if(!this.pipeline.equalsIgnoreCase(pipeline)) {
-                return false;
+        //Check if pipeline string is a regex
+        try {
+            if(this.pipeline != null) {
+                Pattern.compile(this.pipeline);
+                pipelineIsRegex = true;
+            } else {
+                pipelineIsRegex = false;
             }
+        } catch (PatternSyntaxException e) {
+            pipelineIsRegex = false;
         }
 
-        if(this.stage != null && !this.stage.equalsIgnoreCase(stage)) {
+        //Check if stage string is a regex
+        try {
+            if(this.stage != null) {
+                Pattern.compile(this.stage);
+                stageIsRegex = true;
+            } else {
+                stageIsRegex = false;
+            }
+        } catch (PatternSyntaxException e) {
+            stageIsRegex = false;
+        }
+
+        if(pipelineIsRegex) {
+            Pattern pat = Pattern.compile(this.pipeline,Pattern.CASE_INSENSITIVE);
+            Matcher m = pat.matcher(pipeline);
+
+            if(!m.find()) {
+                return false;
+            }
+        } else if(this.pipeline != null && !this.pipeline.equalsIgnoreCase(pipeline)) {
+            return false;
+        }
+
+        if(stageIsRegex) {
+            Pattern pat = Pattern.compile(this.stage,Pattern.CASE_INSENSITIVE);
+            Matcher m = pat.matcher(stage);
+
+            if(!m.find()) {
+                return false;
+            }
+        } else if(this.stage != null && !this.stage.equalsIgnoreCase(stage)) {
             return false;
         }
 

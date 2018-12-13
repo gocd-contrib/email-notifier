@@ -27,7 +27,6 @@ public class FilterTest {
         for(BuildState currentState : BuildState.values()) {
             Assert.assertTrue(testFilter.matches("SmokeTestBaseInf", "cloudformation", currentState));
             Assert.assertTrue(testFilter.matches("SmokeTestBaseInf", "ClOuDfOrMaTiOn", currentState));
-
         }
     }
 
@@ -51,11 +50,29 @@ public class FilterTest {
     }
 
     @Test
-    public void testFilterWithWilcardPipelineNameMatchesAllPipelines() {
-        Filter testFilter = new Filter("*BaseInf*", "cloudformation", "building");
+    public void testFilterWithRegexPipelineNameMatchesPipelines() {
+        Filter testFilter = new Filter(".*Inf", "cloudformation", "building");
 
         Assert.assertTrue(testFilter.matches("SmokeTestBaseInf", "cloudformation", BuildState.BUILDING));
         Assert.assertTrue(testFilter.matches("TempTestBaseInf", "cloudformation", BuildState.BUILDING));
+        Assert.assertTrue(testFilter.matches("ProductionBaseInf", "cloudformation", BuildState.BUILDING));
+    }
+
+    @Test
+    public void testFilterWithRegexStageNameMatchesStages() {
+        Filter testFilter = new Filter("SmokeTestBaseInf", ".*formation", "building");
+
+        Assert.assertTrue(testFilter.matches("SmokeTestBaseInf", "bananaformation", BuildState.BUILDING));
+        Assert.assertTrue(testFilter.matches("SmokeTestBaseInf", "pickleformation", BuildState.BUILDING));
+        Assert.assertTrue(testFilter.matches("SmokeTestBaseInf", "cloudformation", BuildState.BUILDING));
+    }
+
+    @Test
+    public void testFilterWithRegexStageAndPipelineNameMatchesStages() {
+        Filter testFilter = new Filter(".*BaseInf", ".*formation", "building");
+
+        Assert.assertTrue(testFilter.matches("SmokeTestBaseInf", "bananaformation", BuildState.BUILDING));
+        Assert.assertTrue(testFilter.matches("TempTestBaseInf", "pickleformation", BuildState.BUILDING));
         Assert.assertTrue(testFilter.matches("ProductionBaseInf", "cloudformation", BuildState.BUILDING));
     }
 }
