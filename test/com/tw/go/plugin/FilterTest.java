@@ -60,7 +60,7 @@ public class FilterTest {
 
     @Test
     public void testFilterWithRegexPipelineNameMatchesPipelines() {
-        Filter testFilter = new Filter(".*Inf", "cloudformation", "building");
+        Filter testFilter = new Filter(".*BaseInf", "cloudformation", "building");
 
         Assert.assertTrue(testFilter.matches("SmokeTestBaseInf", "cloudformation", BuildState.BUILDING));
         Assert.assertTrue(testFilter.matches("TempTestBaseInf", "cloudformation", BuildState.BUILDING));
