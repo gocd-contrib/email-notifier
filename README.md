@@ -1,17 +1,17 @@
-Go CD plugin to send Email notifications.
+[GoCD](https://www.gocd.org) plugin to send email notifications.
 
 *Usage:*
 
 ## Installation
 
-* Place the jar in `<go-server-location>/plugins/external` & restart Go Server
+* Place the jar in `<go-server-location>/plugins/external` & restart the GoCD Server.
 
 ## Configuration
 
-- You will see `Email Notification plugin` on plugin listing page
+- You will see `Email Notification plugin` on the plugin listing page
 ![Plugins listing page][1]
 
-- You will need to configure the plugin (this feature requires GoCD version >= v15.2, use system properties to configure the plugin) 
+- You will need to configure the plugin:
 ![Configure plugin pop-up][2]
 
 - When the stage status changes...
@@ -20,7 +20,9 @@ Go CD plugin to send Email notifications.
 ## To customize notifications
 
 * Clone the project
+
 * Customize when & whom to send emails for different events (Stage - Scheduled, Passed, Failed, Cancelled)
+
 * Run `mvn clean package -DskipTests` which will create plugin jar in 'dist' folder
 
 [1]: images/list-plugin.png  "List Plugin"
@@ -29,13 +31,13 @@ Go CD plugin to send Email notifications.
 
 ## Contributing
 
-We encourage you to contribute to Go. For information on contributing to this project, please see our [contributor's guide](http://www.go.cd/contribute).
+We encourage you to contribute to GoCD. For information on contributing to this project, please see our [contributor's guide](http://www.go.cd/contribute).
 A lot of useful information like links to user documentation, design documentation, mailing lists etc. can be found in the [resources](http://www.go.cd/community/resources.html) section.
 
 ## License
 
 ```plain
-Copyright 2015 ThoughtWorks, Inc.
+Copyright 2018 ThoughtWorks, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
