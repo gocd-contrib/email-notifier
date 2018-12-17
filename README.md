@@ -9,12 +9,15 @@
 ## Configuration
 
 - You will see `Email Notification plugin` on the plugin listing page
+
 ![Plugins listing page][1]
 
 - You will need to configure the plugin:
+
 ![Configure plugin pop-up][2]
 
-- When the stage status changes...
+- When the stage status changes, you get an email:
+
 ![Successful Notification][3]
 
 ## To customize notifications
