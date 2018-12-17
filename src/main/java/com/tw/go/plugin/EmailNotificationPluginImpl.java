@@ -65,6 +65,7 @@ public class EmailNotificationPluginImpl implements GoPlugin {
     public static final int INTERNAL_ERROR_RESPONSE_CODE = 500;
 
     private GoApplicationAccessor goApplicationAccessor;
+    private SessionFactory sessionFactory;
 
     @Override
     public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
@@ -151,7 +152,7 @@ public class EmailNotificationPluginImpl implements GoPlugin {
 
                 for (String receiverEmailId : receiverEmailIds) {
                     SMTPSettings settings = new SMTPSettings(pluginSettings.getSmtpHost(), pluginSettings.getSmtpPort(), pluginSettings.isTls(), pluginSettings.getSenderEmailId(), pluginSettings.getSmtpUsername(), pluginSettings.getSenderPassword());
-                    new SMTPMailSender(settings).send(subject, body, receiverEmailId);
+                    new SMTPMailSender(settings, sessionFactory).send(subject, body, receiverEmailId);
                 }
 
                 LOGGER.info("Successfully delivered an email.");
@@ -356,5 +357,9 @@ public class EmailNotificationPluginImpl implements GoPlugin {
                 return json;
             }
         };
+    }
+
+    void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 }

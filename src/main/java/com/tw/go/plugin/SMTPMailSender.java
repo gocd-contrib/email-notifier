@@ -19,9 +19,7 @@ package com.tw.go.plugin;
 import com.thoughtworks.go.plugin.api.logging.Logger;
 
 import javax.mail.*;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.Date;
 import java.util.Properties;
 
 import static javax.mail.Message.RecipientType.TO;
@@ -32,19 +30,21 @@ public class SMTPMailSender {
     public static final int DEFAULT_TIMEOUT = 60 * 1000;
 
     private SMTPSettings smtpSettings;
+    private SessionFactory sessionFactory;
 
-    public SMTPMailSender(SMTPSettings smtpSettings) {
+    public SMTPMailSender(SMTPSettings smtpSettings, SessionFactory sessionFactory) {
         this.smtpSettings = smtpSettings;
+        this.sessionFactory = sessionFactory;
     }
 
     public void send(String subject, String body, String toEmailId) {
         Transport transport = null;
         try {
             Properties properties = mailProperties();
-            Session session = createSession(properties, smtpSettings.getSmtpUsername(), smtpSettings.getPassword());
-            transport = session.getTransport();
+            SessionWrapper sessionWrapper = createSession(properties, smtpSettings.getSmtpUsername(), smtpSettings.getPassword());
+            transport = sessionWrapper.getTransport();
             transport.connect(smtpSettings.getHostName(), smtpSettings.getPort(), nullIfEmpty(smtpSettings.getSmtpUsername()), nullIfEmpty(smtpSettings.getPassword()));
-            MimeMessage message = createMessage(session, smtpSettings.getFromEmailId(), toEmailId, subject, body);
+            MimeMessage message = sessionWrapper.createMessage(smtpSettings.getFromEmailId(), toEmailId, subject, body);
             transport.sendMessage(message, message.getRecipients(TO));
         } catch (Exception e) {
             LOGGER.error(String.format("Sending failed for email [%s] to [%s]", subject, toEmailId), e);
@@ -82,41 +82,14 @@ public class SMTPMailSender {
         return properties;
     }
 
-    private Session createSession(Properties properties, String username, String password) {
+    private SessionWrapper createSession(Properties properties, String username, String password) {
         if (isEmpty(username) || isEmpty(password)) {
-            return Session.getInstance(properties);
+            return sessionFactory.getInstance(properties);
         } else {
             properties.put("mail.smtp.auth", "true");
             properties.put("mail.smtps.auth", "true");
-            return Session.getInstance(properties, new SMTPAuthenticator(username, password));
+            return sessionFactory.getInstance(properties, new SMTPAuthenticator(username, password));
         }
-    }
-
-    private final class SMTPAuthenticator extends Authenticator {
-        private final String username;
-        private final String password;
-
-        public SMTPAuthenticator(String username, String password) {
-            this.username = username;
-            this.password = password;
-        }
-
-        protected PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication(username, password);
-        }
-    }
-
-    private MimeMessage createMessage(Session session, String fromEmailId, String toEmailId, String subject, String body) throws MessagingException {
-        MimeMessage message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(fromEmailId));
-        message.setRecipients(TO, toEmailId);
-        message.setSubject(subject);
-        message.setContent(message, "text/plain");
-        message.setSentDate(new Date());
-        message.setText(body);
-        message.setSender(new InternetAddress(fromEmailId));
-        message.setReplyTo(new InternetAddress[]{new InternetAddress(fromEmailId)});
-        return message;
     }
 
     private String nullIfEmpty(String str) {

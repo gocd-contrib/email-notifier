@@ -24,14 +24,14 @@ import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.tw.go.plugin.util.JSONUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import javax.mail.*;
+import javax.mail.Address;
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,24 +43,20 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Session.class)
 public class EmailNotificationPluginImplUnitTest {
 
     @Mock
     private GoApplicationAccessor goApplicationAccessor;
 
     @Mock
-    private Session mockSession;
+    private SessionWrapper mockSession;
 
     @Mock
     private Transport mockTransport;
 
     @Mock
-    private Properties mockProperties;
+    private SessionFactory mockSessionFactory;
 
     private Map<String, Object> settingsResponseMap;
 
@@ -72,20 +68,14 @@ public class EmailNotificationPluginImplUnitTest {
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        mockStatic(Session.class);
-
         when(mockSession.getTransport()).thenReturn(mockTransport);
-        when(mockSession.getTransport(any(Address.class))).thenReturn(mockTransport);
-        when(mockSession.getTransport(any(Provider.class))).thenReturn(mockTransport);
 
-        when(mockSession.getProperties()).thenReturn(mockProperties);
-
-        when(Session.getInstance(any(Properties.class))).thenReturn(mockSession);
-        when(Session.getInstance(any(Properties.class), any(Authenticator.class))).thenReturn(mockSession);
-
+        when(mockSessionFactory.getInstance(any(Properties.class))).thenReturn(mockSession);
+        when(mockSessionFactory.getInstance(any(Properties.class), any(Authenticator.class))).thenReturn(mockSession);
 
         emailNotificationPlugin = new EmailNotificationPluginImpl();
         emailNotificationPlugin.initializeGoApplicationAccessor(goApplicationAccessor);
+        emailNotificationPlugin.setSessionFactory(mockSessionFactory);
     }
 
     @Before
@@ -126,7 +116,7 @@ public class EmailNotificationPluginImplUnitTest {
 
 
     @Test
-    public void testStageNotificationRequestsSettings() throws Exception {
+    public void testStageNotificationRequestsSettings() {
         GoApiResponse settingsResponse = testSettingsResponse();
 
         when(goApplicationAccessor.submit(eq(testSettingsRequest()))).thenReturn(settingsResponse);
@@ -162,6 +152,7 @@ public class EmailNotificationPluginImplUnitTest {
         GoApiResponse settingsResponse = testSettingsResponse();
 
         when(goApplicationAccessor.submit(any(GoApiRequest.class))).thenReturn(settingsResponse);
+        doCallRealMethod().when(mockSession).createMessage(anyString(), anyString(), anyString(), anyString());
 
         GoPluginApiRequest requestFromServer = testStageChangeRequestFromServer();
 
@@ -180,6 +171,7 @@ public class EmailNotificationPluginImplUnitTest {
         GoApiResponse settingsResponse = testSettingsResponse();
 
         when(goApplicationAccessor.submit(any(GoApiRequest.class))).thenReturn(settingsResponse);
+        doCallRealMethod().when(mockSession).createMessage(anyString(), anyString(), anyString(), anyString());
 
         GoPluginApiRequest requestFromServer = testStageChangeRequestFromServer();
 
@@ -205,7 +197,7 @@ public class EmailNotificationPluginImplUnitTest {
 
     private static GoApiRequest testSettingsRequest() {
 
-        final Map<String, Object> requestMap = new HashMap<String, Object>();
+        final Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("plugin-id", "email.notifier");
 
         final String responseBody = JSONUtils.toJSON(requestMap);
