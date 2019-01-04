@@ -42,11 +42,14 @@ Thumbs.db
 
 # IntelliJ #
 ###########
-.idea/
+.idea/*
 out/
 *.ipr
 *.iws
 *.iml
+.gradle
+build/
+!.idea/copyright
 
 # App #
 ######

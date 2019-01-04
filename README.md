@@ -26,7 +26,7 @@
 
 * Customize when & whom to send emails for different events (Stage - Scheduled, Passed, Failed, Cancelled)
 
-* Run `mvn clean package -DskipTests` which will create plugin jar in 'dist' folder
+* Run `./gradlew clean assemble` which will create plugin jar in 'build/libs' folder
 
 [1]: images/list-plugin.png  "List Plugin"
 [2]: images/configure-plugin.png  "Configure Plugin"
@@ -40,7 +40,7 @@ A lot of useful information like links to user documentation, design documentati
 ## License
 
 ```plain
-Copyright 2018 ThoughtWorks, Inc.
+Copyright 2019 ThoughtWorks, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
