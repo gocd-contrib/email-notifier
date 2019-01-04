@@ -47,6 +47,8 @@ out/
 *.ipr
 *.iws
 *.iml
+.gradle
+build/
 
 # App #
 ######
