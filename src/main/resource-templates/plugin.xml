@@ -14,16 +14,15 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<go-plugin id="email.notifier" version="1">
+<go-plugin id="${id}" version="1">
     <about>
-        <name>Email Notification plugin</name>
-        <version>0.1</version>
-        <target-go-version>15.1.0</target-go-version>
-        <description>Plugin to send email notifications</description>
+        <name>${name}</name>
+        <version>${version}</version>
+        <target-go-version>${goCdVersion}</target-go-version>
+        <description>${description}</description>
         <vendor>
-            <name>Srinivas</name>
-            <url>https://github.com/srinivasupadhya/email-notifier</url>
+            <name>${vendorName}</name>
+            <url>${vendorUrl}</url>
         </vendor>
     </about>
 </go-plugin>

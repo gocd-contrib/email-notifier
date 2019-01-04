@@ -17,7 +17,6 @@
 plugins {
     id 'java'
     id 'co.riiid.gradle' version '0.4.2'
-    id 'maven'
 }
 apply from: 'plugin-helpers.gradle'
 
@@ -34,13 +33,12 @@ project.ext.pluginDesc = [
         id         : 'email.notifier',
         repo       : rootProject.name,
         version    : project.version,
-        goCdVersion: '14.4.0',
+        goCdVersion: '15.1.0',
         name       : 'Email Notifier Plugin',
-        description: 'GoCD plugin to send email notifications.',
+        description: 'Plugin to send email notifications',
         vendorName : 'GoCD Contributors',
         vendorUrl  : 'https://github.com/gocd-contrib/email-notifier'
 ]
-
 
 repositories {
     mavenLocal()
@@ -72,7 +70,4 @@ dependencies {
     testCompile 'cglib:cglib:3.1'
 }
 
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
 apply from: 'plugin-tasks.gradle'
