@@ -65,6 +65,7 @@ public class EmailNotificationPluginImplUnitTest {
     private Map<String, Object> settingsResponseMap;
 
     private Map<String, Object> stateChangeResponseMap;
+    private EmailNotificationPluginImpl emailNotificationPlugin;
 
 
     @Before
@@ -123,7 +124,6 @@ public class EmailNotificationPluginImplUnitTest {
         stateChangeResponseMap.put("pipeline", pipelineMap);
     }
 
-    private EmailNotificationPluginImpl emailNotificationPlugin;
 
     @Test
     public void testStageNotificationRequestsSettings() throws Exception {
@@ -167,7 +167,7 @@ public class EmailNotificationPluginImplUnitTest {
 
         emailNotificationPlugin.handle(requestFromServer);
 
-        verify(mockTransport).sendMessage(any(Message.class), eq( new Address[] { new InternetAddress("test-email@test.co.uk") } ));
+        verify(mockTransport).sendMessage(any(Message.class), eq(new Address[]{new InternetAddress("test-email@test.co.uk")}));
         verify(mockTransport, times(1)).connect(eq("test-smtp-host"), eq("test-smtp-username"), eq("test-smtp-password"));
         verify(mockTransport, times(1)).close();
         verifyNoMoreInteractions(mockTransport);
@@ -185,8 +185,8 @@ public class EmailNotificationPluginImplUnitTest {
 
         emailNotificationPlugin.handle(requestFromServer);
 
-        verify(mockTransport).sendMessage(any(Message.class), eq( new Address[] { new InternetAddress("test-email@test.co.uk") } ));
-        verify(mockTransport).sendMessage(any(Message.class), eq( new Address[] { new InternetAddress("test-email-2@test.co.uk") } ));
+        verify(mockTransport).sendMessage(any(Message.class), eq(new Address[]{new InternetAddress("test-email@test.co.uk")}));
+        verify(mockTransport).sendMessage(any(Message.class), eq(new Address[]{new InternetAddress("test-email-2@test.co.uk")}));
         verify(mockTransport, times(2)).connect(eq("test-smtp-host"), eq("test-smtp-username"), eq("test-smtp-password"));
         verify(mockTransport, times(2)).close();
         verifyNoMoreInteractions(mockTransport);
