@@ -43,7 +43,7 @@ public class SMTPMailSender {
             Properties properties = mailProperties();
             Session session = createSession(properties, smtpSettings.getSmtpUsername(), smtpSettings.getPassword());
             transport = session.getTransport();
-            transport.connect(smtpSettings.getHostName(), nullIfEmpty(smtpSettings.getSmtpUsername()), nullIfEmpty(smtpSettings.getPassword()));
+            transport.connect(smtpSettings.getHostName(), smtpSettings.getPort(), nullIfEmpty(smtpSettings.getSmtpUsername()), nullIfEmpty(smtpSettings.getPassword()));
             MimeMessage message = createMessage(session, smtpSettings.getFromEmailId(), toEmailId, subject, body);
             transport.sendMessage(message, message.getRecipients(TO));
         } catch (Exception e) {
