@@ -47,7 +47,7 @@ static def getLastTag(boolean isExperimental) {
 String getCommitsSinceLastTag(String from) {
     def hashStdOut = new ByteArrayOutputStream()
     def hashErrorOutput = new ByteArrayOutputStream()
-    def commandToExecute = ["git", "log", "--no-merges", "--pretty=\"%h - %s\""]
+    def commandToExecute = ["git", "log", "--no-merges", "--pretty='%h - %s'"]
     if (from) {
         commandToExecute.add("${from}..HEAD")
     }
