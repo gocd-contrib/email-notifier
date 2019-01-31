@@ -24,7 +24,7 @@ group = 'com.thoughtworks.go'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-project.ext.pluginVersion = '0.2'
+project.ext.pluginVersion = '0.3'
 project.ext.fullVersion = project.git.distVersion() ? "${project.pluginVersion}-${project.git.distVersion()}" : project.pluginVersion
 
 version = project.fullVersion
