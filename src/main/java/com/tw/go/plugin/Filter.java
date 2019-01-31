@@ -19,39 +19,67 @@ package com.tw.go.plugin;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
+
 public class Filter {
 
-    private String pipeline;
-    private String stage;
+    private String pipelinePattern;
+    private String stagePattern;
     private BuildState status;
 
-    public Filter(String pipeline, String stage, String status) {
-        this.pipeline = pipeline;
-        this.stage = stage;
+    public Filter(String pipelinePattern, String stagePattern, String status) {
+        this.pipelinePattern = pipelinePattern;
+        this.stagePattern = stagePattern;
         this.status = BuildState.fromRawString(status);
     }
 
     public boolean matches(String pipeline, String stage, BuildState status) {
-        if(this.pipeline != null) {
-
-            if(this.pipeline.startsWith("*") && this.pipeline.endsWith("*")) {
-                if(pipeline == null || !pipeline.contains(this.pipeline.replaceAll("\\*", ""))) {
-                    return false;
-                }
-            } else if(!this.pipeline.equalsIgnoreCase(pipeline)) {
-                return false;
-            }
-        }
-
-        if(this.stage != null && !this.stage.equalsIgnoreCase(stage)) {
+        if (isNotAMatch(pipeline, convertToRegex(this.pipelinePattern))) {
             return false;
         }
 
-        if(this.status != null && !this.status.equals(status)){
+        if (isNotAMatch(stage, convertToRegex(this.stagePattern))) {
+            return false;
+        }
+
+        if (this.status != null && !this.status.equals(status)) {
             return false;
         }
 
         return true;
+    }
+
+    private boolean isNotAMatch(String value, String pattern) {
+        if (isARegex(pattern)) {
+            if (!value.toLowerCase().matches(pattern.toLowerCase())) {
+                return true;
+            }
+        } else if (pattern != null && !pattern.equalsIgnoreCase(value)) {
+            return true;
+        }
+        return false;
+    }
+
+    private String convertToRegex(String pattern) {
+        if (pattern == null || isARegex(pattern)) {
+            return pattern;
+        }
+        return pattern.replaceAll("\\*", ".*");
+    }
+
+    private boolean isARegex(String value) {
+        try {
+            if (value != null) {
+                Pattern.compile(value);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (PatternSyntaxException e) {
+            return false;
+        }
     }
 
     public boolean matches(String pipeline, String stage, String rawStatus) {
@@ -61,8 +89,8 @@ public class Filter {
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-                .append(pipeline)
-                .append(stage)
+                .append(pipelinePattern)
+                .append(stagePattern)
                 .append(status)
                 .hashCode();
     }
@@ -75,8 +103,8 @@ public class Filter {
         Filter otherFilter = (Filter) other;
 
         return new EqualsBuilder()
-                .append(this.pipeline, otherFilter.pipeline)
-                .append(this.stage, otherFilter.stage)
+                .append(this.pipelinePattern, otherFilter.pipelinePattern)
+                .append(this.stagePattern, otherFilter.stagePattern)
                 .append(this.status, otherFilter.status)
                 .build();
     }
@@ -85,9 +113,9 @@ public class Filter {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append("Pipeline: "+pipeline+"\n");
-        stringBuilder.append("Stage: "+stage+"\n");
-        stringBuilder.append("Status: "+status+"\n");
+        stringBuilder.append("Pipeline: " + pipelinePattern + "\n");
+        stringBuilder.append("Stage: " + stagePattern + "\n");
+        stringBuilder.append("Status: " + status + "\n");
 
         return stringBuilder.toString();
     }
