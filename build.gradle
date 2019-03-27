@@ -14,31 +14,36 @@
  * limitations under the License.
  */
 
-plugins {
-    id 'java'
-    id 'co.riiid.gradle' version '0.4.2'
+apply plugin: 'java'
+apply from: "https://raw.githubusercontent.com/gocd/gocd-plugin-gradle-task-helpers/master/helper.gradle?_=${(int) (new Date().toInstant().epochSecond / 60)}"
+
+gocdPlugin {
+    id = 'email.notifier'
+    pluginVersion = '0.3'
+    goCdVersion = '15.1.0'
+    name = 'Email Notifier Plugin'
+    description = 'Plugin to send email notifications'
+    vendorName = 'ThoughtWorks, Inc.'
+    vendorUrl = 'https://github.com/gocd-contrib/email-notifier'
+
+    githubRepo {
+        owner = System.getenv('GITHUB_USER') ?: 'bob'
+        repo = 'email-notifier'
+        token = System.getenv('GITHUB_TOKEN') ?: 'bad-token'
+    }
+
+    pluginProject = project
+
+    prerelease = !"No".equalsIgnoreCase(System.getenv('PRERELEASE'))
+    assetsToRelease = [project.tasks.jar]
 }
-apply from: 'plugin-helpers.gradle'
 
 group = 'com.thoughtworks.go'
+version = gocdPlugin.fullVersion(project)
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-project.ext.pluginVersion = '0.3'
-project.ext.fullVersion = project.git.distVersion() ? "${project.pluginVersion}-${project.git.distVersion()}" : project.pluginVersion
-
-version = project.fullVersion
-
-project.ext.pluginDesc = [
-        id         : 'email.notifier',
-        repo       : rootProject.name,
-        version    : project.version,
-        goCdVersion: '15.1.0',
-        name       : 'Email Notifier Plugin',
-        description: 'Plugin to send email notifications',
-        vendorName : 'GoCD Contributors',
-        vendorUrl  : 'https://github.com/gocd-contrib/email-notifier'
-]
 
 repositories {
     mavenLocal()
@@ -69,4 +74,3 @@ dependencies {
     testCompile 'org.slf4j:slf4j-log4j12:1.7.26'
 }
 
-apply from: 'plugin-tasks.gradle'

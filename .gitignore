@@ -56,3 +56,4 @@ build/
 sample.db
 target/
 dist/
+src/main/resources-generated/
