@@ -60,7 +60,7 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly 'cd.go.plugin:go-plugin-api:19.2.0'
+    compileOnly 'cd.go.plugin:go-plugin-api:19.5.0'
     compile 'javax.mail:mail:1.4.7'
     compile 'com.google.code.gson:gson:2.8.5'
     compile 'commons-io:commons-io:2.6'
