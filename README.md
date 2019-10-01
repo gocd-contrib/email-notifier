@@ -32,6 +32,25 @@
 [2]: images/configure-plugin.png  "Configure Plugin"
 [3]: images/successful-notification.png  "Successful Notification"
 
+##Configuring the plugin for GoCD on Kubernetes using Helm
+
+###Adding the plugin
+- In order to add this plugin, you have to use a local values.yaml file that will override the default [values.yaml](https://github.com/helm/charts/blob/master/stable/gocd/values.yaml) present in the official GoCD helm chart repo.
+- Add the .jar file link from the releases section to the `env.extraEnvVars` section as a new environment variable.
+- The environment variable name must have `GOCD_PLUGIN_INSTALL` prefixed to it.
+- Example
+
+```
+env:
+  extraEnvVars:
+    - name: GOCD_PLUGIN_INSTALL_email-notifier
+      value: https://github.com/gocd-contrib/email-notifier/releases/download/v0.3-68-exp/email-notifier-0.3-68.jar
+```
+- Make sure to add the link of the release you want to use.
+
+- Then applying the local values.yaml that has these values added to it will result in a new Go Server pod being created that has the plugin installed and running.
+
+
 ## Contributing
 
 We encourage you to contribute to GoCD. For information on contributing to this project, please see our [contributor's guide](https://www.gocd.org/contribute/).
