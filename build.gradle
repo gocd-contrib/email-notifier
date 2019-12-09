@@ -74,3 +74,12 @@ dependencies {
     testCompile 'org.slf4j:slf4j-log4j12:1.7.28'
 }
 
+jar {
+  from(configurations.compile) {
+    into "lib/"
+  }
+
+  from(sourceSets.main.java) {
+    into "/"
+  }
+}
