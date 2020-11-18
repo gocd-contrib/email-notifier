@@ -70,6 +70,7 @@ public class EmailNotificationPluginImpl implements GoPlugin {
     @Override
     public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
         this.goApplicationAccessor = goApplicationAccessor;
+        this.sessionFactory = new SessionFactory();
     }
 
     @Override
