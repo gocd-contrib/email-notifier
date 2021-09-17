@@ -184,8 +184,8 @@ public class EmailNotificationPluginImpl implements GoPlugin {
         response.put(PLUGIN_SETTINGS_SMTP_PORT, createField("SMTP Port", null, true, false, "1"));
         response.put(PLUGIN_SETTINGS_IS_TLS, createField("TLS", null, true, false, "2"));
         response.put(PLUGIN_SETTINGS_SENDER_EMAIL_ID, createField("Sender Email ID", null, true, false, "3"));
-        response.put(PLUGIN_SETTINGS_SMTP_USERNAME, createField("SMTP Username", null, true, false, "4"));
-        response.put(PLUGIN_SETTINGS_SENDER_PASSWORD, createField("Sender Password", null, true, true, "5"));
+        response.put(PLUGIN_SETTINGS_SMTP_USERNAME, createField("SMTP Username", null, false, false, "4"));
+        response.put(PLUGIN_SETTINGS_SENDER_PASSWORD, createField("Sender Password", null, false, true, "5"));
         response.put(PLUGIN_SETTINGS_RECEIVER_EMAIL_ID, createField("Receiver Email-id", null, true, false, "6"));
         response.put(PLUGIN_SETTINGS_FILTER, createField("Pipeline/Stage/Status filter", null, false, false, "7"));
         return renderJSON(SUCCESS_RESPONSE_CODE, response);
@@ -237,13 +237,6 @@ public class EmailNotificationPluginImpl implements GoPlugin {
             @Override
             public void validate(Map<String, Object> fieldValidation) {
                 validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_SENDER_EMAIL_ID, "Sender Email ID");
-            }
-        });
-
-        validate(response, new FieldValidator() {
-            @Override
-            public void validate(Map<String, Object> fieldValidation) {
-                validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_SENDER_PASSWORD, "Sender Password");
             }
         });
 
