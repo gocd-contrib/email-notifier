@@ -31,6 +31,7 @@ import com.tw.go.plugin.util.JSONUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static java.util.Arrays.asList;
@@ -203,7 +204,7 @@ public class EmailNotificationPluginImpl implements GoPlugin {
 
     private GoPluginApiResponse handleGetPluginSettingsView() throws IOException {
         Map<String, Object> response = new HashMap<>();
-        response.put("template", IOUtils.toString(getClass().getResourceAsStream("/plugin-settings.template.html"), "UTF-8"));
+        response.put("template", IOUtils.toString(getClass().getResourceAsStream("/plugin-settings.template.html"), StandardCharsets.UTF_8));
         return renderJSON(SUCCESS_RESPONSE_CODE, response);
     }
 
