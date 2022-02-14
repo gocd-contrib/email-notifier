@@ -19,20 +19,20 @@ package com.tw.go.plugin;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import org.apache.log4j.BasicConfigurator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class SMTPMailSenderTest {
     private GreenMail mailServer;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         BasicConfigurator.configure();
         mailServer = new GreenMail(ServerSetupTest.SMTP);
@@ -55,7 +55,7 @@ public class SMTPMailSenderTest {
         assertThat(mailServer.getReceivedMessages()[0].getContent().toString(), is("body\r\n"));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         mailServer.stop();
     }

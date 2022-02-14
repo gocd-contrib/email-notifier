@@ -22,8 +22,8 @@ import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.tw.go.plugin.util.JSONUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -38,8 +38,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 public class EmailNotificationPluginImplUnitTest {
@@ -62,9 +62,9 @@ public class EmailNotificationPluginImplUnitTest {
     private EmailNotificationPluginImpl emailNotificationPlugin;
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         when(mockSession.getTransport()).thenReturn(mockTransport);
 
@@ -76,7 +76,7 @@ public class EmailNotificationPluginImplUnitTest {
         emailNotificationPlugin.setSessionFactory(mockSessionFactory);
     }
 
-    @Before
+    @BeforeEach
     public void setupDefaultSettingResponse() {
         settingsResponseMap = new HashMap<>();
 
@@ -89,7 +89,7 @@ public class EmailNotificationPluginImplUnitTest {
         settingsResponseMap.put("receiver_email_id", "test-smtp-receiver");
     }
 
-    @Before
+    @BeforeEach
     public void setupDefaultStateChangeResponseMap() {
         Map<String, Object> stageResponseMap = new HashMap<>();
 
