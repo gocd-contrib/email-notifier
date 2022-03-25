@@ -52,7 +52,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'cd.go.plugin:go-plugin-api:21.4.0'
+    compileOnly 'cd.go.plugin:go-plugin-api:22.1.0'
     implementation 'javax.mail:mail:1.4.7'
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation 'commons-io:commons-io:2.11.0'
