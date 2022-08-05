@@ -52,7 +52,7 @@ public class SMTPMailSenderTest {
         assertThat(mailServer.getReceivedMessages().length, is(1));
         assertThat(mailServer.getReceivedMessages()[0].getFrom()[0].toString(), is(emailId));
         assertThat(mailServer.getReceivedMessages()[0].getSubject(), is("subject"));
-        assertThat(mailServer.getReceivedMessages()[0].getContent().toString(), is("body\r\n"));
+        assertThat(mailServer.getReceivedMessages()[0].getContent().toString(), is("body"));
     }
 
     @AfterEach
