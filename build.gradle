@@ -51,17 +51,26 @@ repositories {
     mavenLocal()
 }
 
+ext {
+    deps = [
+        gocdPluginApi: 'cd.go.plugin:go-plugin-api:22.2.0',
+    ]
+
+    versions = project.ext.deps.collectEntries { lib, libGav -> [lib, libGav.split(':').last()] }
+}
+
 dependencies {
-    compileOnly 'cd.go.plugin:go-plugin-api:22.2.0'
+    compileOnly project.deps.gocdPluginApi
     implementation 'javax.mail:mail:1.4.7'
     implementation 'com.google.code.gson:gson:2.9.1'
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
 
-    testImplementation 'cd.go.plugin:go-plugin-api:22.2.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+    testImplementation project.deps.gocdPluginApi
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testImplementation 'org.hamcrest:hamcrest-core:2.2'
     testImplementation 'org.mockito:mockito-core:4.8.0'
     testImplementation('com.icegreen:greenmail:1.6.10') {
