@@ -18,7 +18,6 @@ package com.tw.go.plugin;
 
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetupTest;
-import org.apache.log4j.BasicConfigurator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +33,6 @@ public class SMTPMailSenderTest {
 
     @BeforeEach
     public void setUp() {
-        BasicConfigurator.configure();
         mailServer = new GreenMail(ServerSetupTest.SMTP);
         mailServer.start();
     }
