@@ -73,7 +73,7 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testImplementation 'org.hamcrest:hamcrest-core:2.2'
     testImplementation 'org.mockito:mockito-core:5.2.0'
-    testImplementation('com.icegreen:greenmail:1.6.14') {
+    testImplementation('com.icegreen:greenmail:2.0.0') {
         exclude group: 'junit'
     }
     testImplementation 'org.slf4j:slf4j-simple:2.0.7'
