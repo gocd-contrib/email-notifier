@@ -61,7 +61,7 @@ ext {
 
 dependencies {
     compileOnly project.deps.gocdPluginApi
-    implementation 'javax.mail:mail:1.4.7'
+    implementation 'javax.mail:javax.mail-api:1.6.2'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
