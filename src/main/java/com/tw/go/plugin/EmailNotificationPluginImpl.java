@@ -28,13 +28,11 @@ import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.tw.go.plugin.util.FieldValidator;
 import com.tw.go.plugin.util.JSONUtils;
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-
-import static java.util.Arrays.asList;
 
 @Extension
 public class EmailNotificationPluginImpl implements GoPlugin {
@@ -204,8 +202,11 @@ public class EmailNotificationPluginImpl implements GoPlugin {
 
     private GoPluginApiResponse handleGetPluginSettingsView() throws IOException {
         Map<String, Object> response = new HashMap<>();
-        response.put("template", IOUtils.toString(getClass().getResourceAsStream("/plugin-settings.template.html"), StandardCharsets.UTF_8));
-        return renderJSON(SUCCESS_RESPONSE_CODE, response);
+
+        try (InputStream template = getClass().getResourceAsStream("/plugin-settings.template.html")) {
+            response.put("template", new String(template.readAllBytes(), StandardCharsets.UTF_8));
+            return renderJSON(SUCCESS_RESPONSE_CODE, response);
+        }
     }
 
     private GoPluginApiResponse handleValidatePluginSettingsConfiguration(GoPluginApiRequest goPluginApiRequest) {

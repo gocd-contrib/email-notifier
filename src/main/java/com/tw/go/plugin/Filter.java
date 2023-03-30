@@ -16,18 +16,16 @@
 
 package com.tw.go.plugin;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import java.util.regex.PatternSyntaxException;
 
 public class Filter {
 
-    private String pipelinePattern;
-    private String stagePattern;
-    private BuildState status;
+    private final String pipelinePattern;
+    private final String stagePattern;
+    private final BuildState status;
 
     public Filter(String pipelinePattern, String stagePattern, String status) {
         this.pipelinePattern = pipelinePattern;
@@ -44,11 +42,7 @@ public class Filter {
             return false;
         }
 
-        if (this.status != null && !this.status.equals(status)) {
-            return false;
-        }
-
-        return true;
+        return this.status == null || this.status.equals(status);
     }
 
     private boolean isNotAMatch(String value, String pattern) {
@@ -88,35 +82,23 @@ public class Filter {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder()
-                .append(pipelinePattern)
-                .append(stagePattern)
-                .append(status)
-                .hashCode();
+        return Objects.hash(pipelinePattern, stagePattern, status);
     }
 
     @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof Filter)) {
-            return false;
-        }
-        Filter otherFilter = (Filter) other;
-
-        return new EqualsBuilder()
-                .append(this.pipelinePattern, otherFilter.pipelinePattern)
-                .append(this.stagePattern, otherFilter.stagePattern)
-                .append(this.status, otherFilter.status)
-                .build();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Filter filter = (Filter) o;
+        return Objects.equals(pipelinePattern, filter.pipelinePattern)
+                && Objects.equals(stagePattern, filter.stagePattern)
+                && status == filter.status;
     }
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        stringBuilder.append("Pipeline: " + pipelinePattern + "\n");
-        stringBuilder.append("Stage: " + stagePattern + "\n");
-        stringBuilder.append("Status: " + status + "\n");
-
-        return stringBuilder.toString();
+        return "Pipeline: " + pipelinePattern + "\n" +
+                "Stage: " + stagePattern + "\n" +
+                "Status: " + status + "\n";
     }
 }
