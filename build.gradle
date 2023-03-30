@@ -19,7 +19,7 @@ apply from: "https://raw.githubusercontent.com/gocd/gocd-plugin-gradle-task-help
 
 gocdPlugin {
     id = 'email.notifier'
-    pluginVersion = '1.1.0'
+    pluginVersion = '1.2.0'
     goCdVersion = '20.9.0'
     name = 'Email Notifier Plugin'
     description = 'Plugin to send email notifications'
