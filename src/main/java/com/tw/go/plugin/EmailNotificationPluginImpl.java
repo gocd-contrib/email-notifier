@@ -38,11 +38,11 @@ import static java.util.Arrays.asList;
 
 @Extension
 public class EmailNotificationPluginImpl implements GoPlugin {
-    private static Logger LOGGER = Logger.getLoggerFor(EmailNotificationPluginImpl.class);
+    private static final Logger LOGGER = Logger.getLoggerFor(EmailNotificationPluginImpl.class);
 
     public static final String PLUGIN_ID = "email.notifier";
     public static final String EXTENSION_NAME = "notification";
-    private static final List<String> goSupportedVersions = asList("1.0");
+    private static final List<String> goSupportedVersions = List.of("1.0");
 
     public static final String PLUGIN_SETTINGS_SMTP_HOST = "smtp_host";
     public static final String PLUGIN_SETTINGS_SMTP_PORT = "smtp_port";
@@ -213,40 +213,11 @@ public class EmailNotificationPluginImpl implements GoPlugin {
         final Map<String, String> configuration = keyValuePairs(responseMap, "plugin-settings");
         List<Map<String, Object>> response = new ArrayList<>();
 
-        validate(response, new FieldValidator() {
-            @Override
-            public void validate(Map<String, Object> fieldValidation) {
-                validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_SMTP_HOST, "SMTP Host");
-            }
-        });
-
-        validate(response, new FieldValidator() {
-            @Override
-            public void validate(Map<String, Object> fieldValidation) {
-                validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_SMTP_PORT, "SMTP Port");
-            }
-        });
-
-        validate(response, new FieldValidator() {
-            @Override
-            public void validate(Map<String, Object> fieldValidation) {
-                validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_IS_TLS, "TLS");
-            }
-        });
-
-        validate(response, new FieldValidator() {
-            @Override
-            public void validate(Map<String, Object> fieldValidation) {
-                validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_SENDER_EMAIL_ID, "Sender Email ID");
-            }
-        });
-
-        validate(response, new FieldValidator() {
-            @Override
-            public void validate(Map<String, Object> fieldValidation) {
-                validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_RECEIVER_EMAIL_ID, "Receiver Email-id");
-            }
-        });
+        validate(response, fieldValidation -> validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_SMTP_HOST, "SMTP Host"));
+        validate(response, fieldValidation -> validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_SMTP_PORT, "SMTP Port"));
+        validate(response, fieldValidation -> validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_IS_TLS, "TLS"));
+        validate(response, fieldValidation -> validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_SENDER_EMAIL_ID, "Sender Email ID"));
+        validate(response, fieldValidation -> validateRequiredField(configuration, fieldValidation, PLUGIN_SETTINGS_RECEIVER_EMAIL_ID, "Receiver Email-id"));
 
         return renderJSON(SUCCESS_RESPONSE_CODE, response);
     }
