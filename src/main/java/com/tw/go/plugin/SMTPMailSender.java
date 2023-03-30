@@ -20,6 +20,8 @@ import com.thoughtworks.go.plugin.api.logging.Logger;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.MimeMessage;
+
+import java.util.Objects;
 import java.util.Properties;
 
 import static jakarta.mail.Message.RecipientType.TO;
@@ -27,7 +29,14 @@ import static jakarta.mail.Message.RecipientType.TO;
 public class SMTPMailSender {
     private static final Logger LOGGER = Logger.getLoggerFor(EmailNotificationPluginImpl.class);
 
-    public static final int DEFAULT_TIMEOUT = 60 * 1000;
+    private static final String FROM_PROPERTY = "mail.from";
+    private static final String TRANSPORT_PROTOCOL_PROPERTY = "mail.transport.protocol";
+    private static final String TIMEOUT_PROPERTY = "mail.smtp.timeout";
+    private static final String CONNECTION_TIMEOUT_PROPERTY = "mail.smtp.connectiontimeout";
+    private static final String STARTTLS_PROPERTY = "mail.smtp.starttls.enable";
+    private static final String TLS_CHECK_SERVER_IDENTITY_PROPERTY = "mail.smtp.ssl.checkserveridentity";
+
+    private static final int DEFAULT_MAIL_SENDER_TIMEOUT_IN_MILLIS = 60 * 1000;
 
     private final SMTPSettings smtpSettings;
     private final SessionFactory sessionFactory;
@@ -60,26 +69,28 @@ public class SMTPMailSender {
     }
 
     private Properties mailProperties() {
-        Properties properties = new Properties();
-        properties.put("mail.from", smtpSettings.getFromEmailId());
+        Properties props = new Properties();
+        props.put(FROM_PROPERTY, smtpSettings.getFromEmailId());
 
-        if (!System.getProperties().containsKey("mail.smtp.connectiontimeout")) {
-            properties.put("mail.smtp.connectiontimeout", DEFAULT_TIMEOUT);
+        if (!System.getProperties().containsKey(CONNECTION_TIMEOUT_PROPERTY)) {
+            props.put(CONNECTION_TIMEOUT_PROPERTY, DEFAULT_MAIL_SENDER_TIMEOUT_IN_MILLIS);
         }
 
-        if (!System.getProperties().containsKey("mail.smtp.timeout")) {
-            properties.put("mail.smtp.timeout", DEFAULT_TIMEOUT);
+        if (!System.getProperties().containsKey(TIMEOUT_PROPERTY)) {
+            props.put(TIMEOUT_PROPERTY, DEFAULT_MAIL_SENDER_TIMEOUT_IN_MILLIS);
         }
 
-        if (smtpSettings.isTls()) {
-            properties.put("mail.smtp.starttls.enable", "true");
-            properties.setProperty("mail.smtp.ssl.enable", "true");
+        if (System.getProperties().containsKey(STARTTLS_PROPERTY)) {
+            props.put(STARTTLS_PROPERTY, "true");
         }
 
-        String mailProtocol = smtpSettings.isTls() ? "smtps" : "smtp";
-        properties.put("mail.transport.protocol", mailProtocol);
+        if (!System.getProperties().containsKey(TLS_CHECK_SERVER_IDENTITY_PROPERTY)) {
+            props.put(TLS_CHECK_SERVER_IDENTITY_PROPERTY, "true");
+        }
 
-        return properties;
+        props.put(TRANSPORT_PROTOCOL_PROPERTY, smtpSettings.isTls() ? "smtps" : "smtp");
+
+        return props;
     }
 
     private SessionWrapper createSession(Properties properties, String username, String password) {
@@ -107,9 +118,7 @@ public class SMTPMailSender {
 
         SMTPMailSender that = (SMTPMailSender) o;
 
-        if (smtpSettings != null ? !smtpSettings.equals(that.smtpSettings) : that.smtpSettings != null) return false;
-
-        return true;
+        return Objects.equals(smtpSettings, that.smtpSettings);
     }
 
     @Override
