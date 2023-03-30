@@ -61,7 +61,8 @@ ext {
 
 dependencies {
     compileOnly project.deps.gocdPluginApi
-    implementation 'javax.mail:javax.mail-api:1.6.2'
+    implementation 'jakarta.mail:jakarta.mail-api:2.1.1'
+    implementation 'org.eclipse.angus:smtp:2.0.1'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
@@ -73,7 +74,7 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testImplementation 'org.hamcrest:hamcrest-core:2.2'
     testImplementation 'org.mockito:mockito-core:5.2.0'
-    testImplementation('com.icegreen:greenmail:1.6.14') {
+    testImplementation('com.icegreen:greenmail:2.0.0') {
         exclude group: 'junit'
     }
     testImplementation 'org.slf4j:slf4j-simple:2.0.7'

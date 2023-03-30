@@ -16,8 +16,8 @@
 
 package com.tw.go.plugin;
 
-import javax.mail.Authenticator;
-import javax.mail.Session;
+import jakarta.mail.Authenticator;
+import jakarta.mail.Session;
 import java.util.Properties;
 
 public class SessionFactory {

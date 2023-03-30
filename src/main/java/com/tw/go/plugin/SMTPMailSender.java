@@ -18,19 +18,19 @@ package com.tw.go.plugin;
 
 import com.thoughtworks.go.plugin.api.logging.Logger;
 
-import javax.mail.*;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.*;
+import jakarta.mail.internet.MimeMessage;
 import java.util.Properties;
 
-import static javax.mail.Message.RecipientType.TO;
+import static jakarta.mail.Message.RecipientType.TO;
 
 public class SMTPMailSender {
-    private static Logger LOGGER = Logger.getLoggerFor(EmailNotificationPluginImpl.class);
+    private static final Logger LOGGER = Logger.getLoggerFor(EmailNotificationPluginImpl.class);
 
     public static final int DEFAULT_TIMEOUT = 60 * 1000;
 
-    private SMTPSettings smtpSettings;
-    private SessionFactory sessionFactory;
+    private final SMTPSettings smtpSettings;
+    private final SessionFactory sessionFactory;
 
     public SMTPMailSender(SMTPSettings smtpSettings, SessionFactory sessionFactory) {
         this.smtpSettings = smtpSettings;

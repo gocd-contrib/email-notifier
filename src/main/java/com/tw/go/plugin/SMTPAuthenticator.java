@@ -16,8 +16,8 @@
 
 package com.tw.go.plugin;
 
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
+import jakarta.mail.Authenticator;
+import jakarta.mail.PasswordAuthentication;
 
 final class SMTPAuthenticator extends Authenticator {
     private final String username;
