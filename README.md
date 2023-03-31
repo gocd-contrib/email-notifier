@@ -8,15 +8,19 @@
 
 ## Configuration
 
-- You will see `Email Notification plugin` on the plugin listing page
+You will see `Email Notification plugin` on the plugin listing page
 
 ![Plugins listing page][1]
 
-- You will need to configure the plugin:
+You will need to configure the plugin:
 
 ![Configure plugin pop-up][2]
 
-- When the stage status changes, you get an email:
+Please note that
+- Enabling "TLS?" enables TLS at transport level. Nothing is exchanged over plaintext and your SMTP server needs to support that.
+- If you have a need for "upgrading" to TLS via the `STARTTLS` SMTP protocol command, you will need to enable the Java system property `-Dmail.smtp.starttls.enable=true` on your GoCD server, similar to GoCD's overall server settings documented [here](https://docs.gocd.org/current/configuration/admin_mailhost_info.html#smtps-and-tls). Usually this is associated with port `587`.
+
+When the stage status changes, you get an email:
 
 ![Successful Notification][3]
 
