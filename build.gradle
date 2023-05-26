@@ -62,7 +62,7 @@ ext {
 dependencies {
     compileOnly project.deps.gocdPluginApi
     implementation 'jakarta.mail:jakarta.mail-api:2.1.1'
-    implementation 'org.eclipse.angus:smtp:2.0.1'
+    implementation 'org.eclipse.angus:smtp:2.0.2'
     implementation 'com.google.code.gson:gson:2.10.1'
 
     testImplementation project.deps.gocdPluginApi
