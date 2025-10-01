@@ -19,8 +19,8 @@ apply from: "https://raw.githubusercontent.com/gocd/gocd-plugin-gradle-task-help
 
 gocdPlugin {
     id = 'email.notifier'
-    pluginVersion = '1.2.0'
-    goCdVersion = '20.9.0'
+    pluginVersion = '2.0.0'
+    goCdVersion = '22.1.0'
     name = 'Email Notifier Plugin'
     description = 'Plugin to send email notifications'
     vendorName = 'ThoughtWorks, Inc.'
@@ -41,8 +41,13 @@ gocdPlugin {
 group = 'com.thoughtworks.go'
 version = gocdPlugin.fullVersion(project)
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 tasks.withType(JavaCompile).configureEach {
-    options.release = 11
+    options.release = 17
 }
 
 repositories {
