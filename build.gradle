@@ -41,9 +41,8 @@ gocdPlugin {
 group = 'com.thoughtworks.go'
 version = gocdPlugin.fullVersion(project)
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+tasks.withType(JavaCompile).configureEach {
+    options.release = 11
 }
 
 repositories {
