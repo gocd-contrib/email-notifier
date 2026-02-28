@@ -70,7 +70,9 @@ dependencies {
     compileOnly project.deps.gocdPluginApi
     implementation 'jakarta.mail:jakarta.mail-api:2.1.5'
     implementation 'org.eclipse.angus:smtp:2.0.5'
-    implementation 'com.google.code.gson:gson:2.13.2'
+    implementation('com.google.code.gson:gson:2.13.2') {
+        exclude(module: 'error_prone_annotations') // Not needed at runtime
+    }
 
     testImplementation project.deps.gocdPluginApi
     testImplementation platform('org.junit:junit-bom:6.0.2')
